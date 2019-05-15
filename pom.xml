@@ -56,6 +56,11 @@
             <artifactId>telegrambots</artifactId>
             <version>4.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.xabgesagtx</groupId>
+            <artifactId>telegram-spring-boot-starter</artifactId>
+            <version>0.20</version>
+        </dependency>
     </dependencies>
 
     <build>

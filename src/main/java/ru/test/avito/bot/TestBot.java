@@ -1,5 +1,7 @@
 package ru.test.avito.bot;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -10,14 +12,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.test.avito.credential.TokenHandler;
+import ru.test.avito.service.model.UpdateManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class TestBot extends TelegramLongPollingBot {
 
     private String token;
     private Integer messageId;
+    private UpdateManager updateManager;
 
     public TestBot() {
         token = TokenHandler.getToken();
@@ -25,7 +30,31 @@ public class TestBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        updateManager.update(update);
+    }
 
+
+    public UpdateManager getUpdateManager() {
+        return updateManager;
+    }
+
+    @Autowired
+    public void setUpdateManager(UpdateManager updateManager) {
+        this.updateManager = updateManager;
+    }
+
+    @Override
+    public String getBotUsername() {
+        return "itsLikeAvitoBot";
+    }
+
+    @Override
+    public String getBotToken() {
+        return token;
+    }
+
+
+    private void stuff(Update update) {
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
         KeyboardRow keyboardRow = new KeyboardRow();
         keyboardRow.add("1");
@@ -79,17 +108,5 @@ public class TestBot extends TelegramLongPollingBot {
             }
 
         }
-
-
-    }
-
-    @Override
-    public String getBotUsername() {
-        return "itsLikeAvitoBot";
-    }
-
-    @Override
-    public String getBotToken() {
-        return token;
     }
 }
