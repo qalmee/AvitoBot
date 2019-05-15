@@ -1,6 +1,7 @@
 package ru.test.avito.domain;
 
 
+import org.telegram.telegrambots.meta.api.objects.User;
 import ru.test.avito.pipeline.PipeState;
 
 import javax.persistence.*;
@@ -12,7 +13,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(unique = true, nullable = false)
-    private Long userId;
+    private Integer userId;
     @Column
     private String firstName;
     @Column
@@ -22,13 +23,32 @@ public class UserEntity {
     @Column
     private Boolean isBot;
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private PipeState pipeState;
 
     public UserEntity() {
         pipeState = PipeState.None;
     }
 
-    public UserEntity(Long id, Long userId, String firstName, String lastName, String userName, Boolean isBot, PipeState pipeState) {
+    public UserEntity(User user) {
+        this.userId = user.getId();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.userName = user.getUserName();
+        this.isBot = user.getBot();
+        this.pipeState = PipeState.None;
+    }
+
+    public UserEntity(Integer userId, String firstName, String lastName, String userName, Boolean isBot, PipeState pipeState) {
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userName = userName;
+        this.isBot = isBot;
+        this.pipeState = pipeState;
+    }
+
+    public UserEntity(Long id, Integer userId, String firstName, String lastName, String userName, Boolean isBot, PipeState pipeState) {
         this.id = id;
         this.userId = userId;
         this.firstName = firstName;
@@ -38,6 +58,7 @@ public class UserEntity {
         this.pipeState = pipeState;
     }
 
+
     public Long getId() {
         return id;
     }
@@ -46,11 +67,11 @@ public class UserEntity {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 

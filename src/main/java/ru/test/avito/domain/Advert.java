@@ -15,9 +15,9 @@ public class Advert {
     @Column
     private ArrayList<String> photos;
     @Column(nullable = false)
-    private String hostId;
+    private Long hostId;
 
-    public Advert(String text, ArrayList<String> photos, String hostId) {
+    public Advert(String text, ArrayList<String> photos, Long hostId) {
         this.text = text;
         this.photos = photos;
         this.hostId = hostId;
@@ -50,11 +50,11 @@ public class Advert {
         this.photos = photos;
     }
 
-    public String getHostId() {
+    public Long getHostId() {
         return hostId;
     }
 
-    public void setHostId(String hostId) {
+    public void setHostId(Long hostId) {
         this.hostId = hostId;
     }
 
