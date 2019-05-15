@@ -6,7 +6,7 @@ public enum PipeState {
     Buyer,
     Seller,
     //    buyerBranch
-    ShowAdverts,
+    SeeAdverts,
     //    sellerBranch
     CheckOwnAdverts,
     CreateAdvert

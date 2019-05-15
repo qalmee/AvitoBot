@@ -2,13 +2,11 @@ package ru.test.avito.service.model;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.test.avito.bot.TestBot;
 import ru.test.avito.domain.UserEntity;
 import ru.test.avito.repository.AdvertRepository;
 import ru.test.avito.repository.TestRepository;
 import ru.test.avito.repository.UserRepository;
-import ru.test.avito.service.MessageFactory;
 
 @Component
 public class UpdateManager {
@@ -43,23 +41,14 @@ public class UpdateManager {
     }
 
     private void messageUpdate(Update update) {
+        UserEntity userEntity;
         if (userRepository.existsByUserId(update.getMessage().getFrom().getId())) {
-            pipeManager.moveThrough(update);
-            try {
-                testBot.execute(MessageFactory.getGreetingOld(update.getMessage().getChatId().toString()));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-
+            userEntity = userRepository.findByUserId(update.getMessage().getFrom().getId()).get();
         } else {
-            UserEntity newUser = new UserEntity(update.getMessage().getFrom());
-            userRepository.save(newUser);
-            try {
-                testBot.execute(MessageFactory.getGreeting(update.getMessage().getChatId().toString()));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+            userEntity = new UserEntity(update.getMessage().getFrom());
         }
+        pipeManager.moveThrough(update, userEntity);
+        userRepository.save(userEntity);
     }
 
 }
