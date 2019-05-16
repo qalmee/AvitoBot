@@ -1,6 +1,7 @@
 package ru.test.avito.service.model;
 
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.test.avito.bot.TestBot;
@@ -15,17 +16,23 @@ public class PipeManager {
 
     private AdvertManager advertManager;
     private UserRepository userRepository;
+    private MessageSender messageSender;
     private TestBot testBot;
 
-    public PipeManager(AdvertManager advertManager, UserRepository userRepository, TestBot testBot) {
+    public PipeManager(AdvertManager advertManager, UserRepository userRepository, MessageSender messageSender, TestBot testBot) {
         this.advertManager = advertManager;
         this.userRepository = userRepository;
+        this.messageSender = messageSender;
         this.testBot = testBot;
     }
 
     void moveThrough(Update update, UserEntity userEntity) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            moveThroughWithTextMessage(update, userEntity);
+        if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
+                moveThroughWithTextMessage(update, userEntity);
+            } else if (update.getMessage().hasPhoto()) {
+                moveThroughWithPhotoMessage(update, userEntity);
+            }
         }
     }
 
@@ -38,35 +45,46 @@ public class PipeManager {
             case Seller:
                 switch (messageText) {
                     case KeyboardFactory.createAnAdvert:
-                        userEntity.setPipeState(PipeState.CreateAdvert);
+                        advertManager.abortAdvert(userEntity); //remove advertInProgress if exists from previous attempt
                         try {
                             testBot.execute(MessageFactory.createAdvert(update.getMessage().getChatId().toString()));
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
+                        userEntity.setPipeState(PipeState.CreateAdvert);
                         break;
                     case KeyboardFactory.SeeAdverts:
-                        userEntity.setPipeState(PipeState.SeeAdverts);
-                        try {
-                            testBot.execute(MessageFactory.seeOwnAdverts(update.getMessage().getChatId().toString()));
-                        } catch (TelegramApiException e) {
-                            e.printStackTrace();
-                        }
+                        messageSender.sendAllAdvertsByHostId(userEntity, update.getMessage().getChatId());
+                        userEntity.setPipeState(PipeState.CheckOwnAdverts);
                         break;
                     case KeyboardFactory.sellerRow3:
                         break;
                 }
                 break;
-            //todo: create an advert
             case CreateAdvert:
                 if (messageText.equals(KeyboardFactory.done)) {
                     userEntity.setPipeState(PipeState.None);
                 } else {
+                    advertManager.createAnAdvert(messageText, userEntity);
                     userEntity.setPipeState(PipeState.AddPhotosToAdvert);
-                    advertManager.createAnAdvert(messageText, update.getMessage().getFrom().getId());
+                    try {
+                        testBot.execute(MessageFactory.attachPhotosToAdvert(update.getMessage().getChatId().toString()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case AddPhotosToAdvert:
+                if (messageText.equals(KeyboardFactory.done)) {
+                    advertManager.advertFinished(userEntity);
+                    try {
+                        testBot.execute(MessageFactory.advertDone(update.getMessage().getChatId().toString()));
+                        testBot.execute(MessageFactory.sellStart(update.getMessage().getChatId().toString()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    userEntity.setPipeState(PipeState.Seller);
+                }
                 break;
             case SeeAdverts:
                 break;
@@ -76,6 +94,10 @@ public class PipeManager {
     }
 
     private void moveThroughWithPhotoMessage(Update update, UserEntity userEntity) {
+        PhotoSize photo = update.getMessage().getPhoto().get(update.getMessage().getPhoto().size() - 1);
+        if (userEntity.getPipeState() == PipeState.AddPhotosToAdvert) {
+            advertManager.addPhotoToAdvert(photo.getFileId(), userEntity);
+        }
 
     }
 
