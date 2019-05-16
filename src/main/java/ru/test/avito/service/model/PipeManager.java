@@ -98,7 +98,6 @@ public class PipeManager {
         if (userEntity.getPipeState() == PipeState.AddPhotosToAdvert) {
             advertManager.addPhotoToAdvert(photo.getFileId(), userEntity);
         }
-
     }
 
 

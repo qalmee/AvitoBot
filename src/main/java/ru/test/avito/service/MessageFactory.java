@@ -1,7 +1,9 @@
 package ru.test.avito.service;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import ru.test.avito.DTO.AdvertMessage;
 import ru.test.avito.domain.Advert;
 
@@ -72,6 +74,7 @@ public class MessageFactory {
     //dto
     public static List<AdvertMessage> ownAdverts(String chatId, List<Advert> adverts) {
         List<AdvertMessage> advertMessages = new ArrayList<>();
+        SendMediaGroup sendMediaGroup;
         for (Advert advert : adverts) {
             AdvertMessage message = new AdvertMessage();
             message.setMessage(new SendMessage()
@@ -79,11 +82,13 @@ public class MessageFactory {
                     .setReplyMarkup(KeyboardFactory.keyboardRemove())
                     .setText(advert.getText()));
             if (advert.getPhotos() != null) {
+                List<InputMedia> photos = new ArrayList<>();
                 for (String photoId : advert.getPhotos()) {
-                    message.addPhoto(new SendPhoto()
-                            .setChatId(chatId)
-                            .setPhoto(photoId));
+                    photos.add(new InputMediaPhoto().setMedia(photoId));
                 }
+                sendMediaGroup = new SendMediaGroup();
+                sendMediaGroup.setChatId(chatId).setMedia(photos);
+                message.setPhotos(sendMediaGroup);
             }
             advertMessages.add(message);
         }

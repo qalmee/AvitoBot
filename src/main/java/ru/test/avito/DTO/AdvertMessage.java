@@ -1,16 +1,13 @@
 package ru.test.avito.DTO;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AdvertMessage {
     private SendMessage message;
-    private List<SendPhoto> photos;
+    private SendMediaGroup photos;
 
-    public AdvertMessage(SendMessage message, List<SendPhoto> photos) {
+    public AdvertMessage(SendMessage message, SendMediaGroup photos) {
         this.message = message;
         this.photos = photos;
     }
@@ -26,23 +23,16 @@ public class AdvertMessage {
         this.message = message;
     }
 
-    public List<SendPhoto> getPhotos() {
+    public SendMediaGroup getPhotos() {
         return photos;
     }
 
-    public void setPhotos(List<SendPhoto> photos) {
+    public void setPhotos(SendMediaGroup photos) {
         this.photos = photos;
     }
 
-    public void addPhoto(SendPhoto photoId) {
-        if (photos == null) {
-            photos = new ArrayList<>();
-        }
-        photos.add(photoId);
-    }
-
     public boolean hasPhotos() {
-        return photos != null && !photos.isEmpty();
+        return photos != null;
     }
 
 

@@ -1,6 +1,7 @@
 package ru.test.avito.service.model;
 
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -27,24 +28,22 @@ public class MessageSender {
     public void sendAllAdvertsByHostId(UserEntity host, Long chatId) {
         List<Advert> adverts = advertRepository.findAllByHost(host);
         if (adverts == null || adverts.isEmpty()) {
-            sendMessage(MessageFactory.noAdverts(chatId.toString()));
+            send(MessageFactory.noAdverts(chatId.toString()));
             return;
         }
-        sendMessage(MessageFactory.ownAdvertsWelcome(chatId.toString()));
+        send(MessageFactory.ownAdvertsWelcome(chatId.toString()));
         List<AdvertMessage> advertMessages = MessageFactory.ownAdverts(chatId.toString(), adverts);
         for (AdvertMessage advertMessage : advertMessages) {
-            sendMessage(advertMessage.getMessage());
-            if (advertMessage.hasPhotos()) {
-                for (SendPhoto photo : advertMessage.getPhotos()) {
-                    sendPhoto(photo);
-                }
+            send(advertMessage.getMessage());
+            if (advertMessage.getPhotos() != null) {
+                send(advertMessage.getPhotos());
             }
-            sendMessage(MessageFactory.divider(chatId.toString()));
+            send(MessageFactory.divider(chatId.toString()));
         }
 
     }
 
-    private void sendMessage(SendMessage message) {
+    private void send(SendMessage message) {
         try {
             testBot.execute(message);
         } catch (TelegramApiException e) {
@@ -52,7 +51,15 @@ public class MessageSender {
         }
     }
 
-    private void sendPhoto(SendPhoto photo) {
+    private void send(SendMediaGroup message) {
+        try {
+            testBot.execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void send(SendPhoto photo) {
         try {
             testBot.execute(photo);
         } catch (TelegramApiException e) {
