@@ -15,12 +15,18 @@ public class Advert {
     @Column
     private ArrayList<String> photos;
     @Column(nullable = false)
-    private Long hostId;
+    private Integer hostId;
 
-    public Advert(String text, ArrayList<String> photos, Long hostId) {
+    public Advert(String text, ArrayList<String> photos, Integer hostId) {
         this.text = text;
         this.photos = photos;
         this.hostId = hostId;
+    }
+
+    public Advert(AdvertInProgress advertInProgress) {
+        this.text = advertInProgress.getText();
+        this.photos = advertInProgress.getPhotos();
+        this.hostId = advertInProgress.getHostId();
     }
 
     public Advert() {
@@ -50,11 +56,18 @@ public class Advert {
         this.photos = photos;
     }
 
-    public Long getHostId() {
+    public void addPhoto(String photo) {
+        if (photos == null) {
+            photos = new ArrayList<>();
+        }
+        photos.add(photo);
+    }
+
+    public Integer getHostId() {
         return hostId;
     }
 
-    public void setHostId(Long hostId) {
+    public void setHostId(Integer hostId) {
         this.hostId = hostId;
     }
 

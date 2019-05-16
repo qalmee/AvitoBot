@@ -5,9 +5,10 @@ public enum PipeState {
     Start,
     Buyer,
     Seller,
-    //    buyerBranch
+    //        buyerBranch
     SeeAdverts,
-    //    sellerBranch
+    //        sellerBranch
     CheckOwnAdverts,
-    CreateAdvert
+    CreateAdvert,
+    AddPhotosToAdvert
 }

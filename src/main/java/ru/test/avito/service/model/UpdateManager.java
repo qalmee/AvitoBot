@@ -1,26 +1,23 @@
 package ru.test.avito.service.model;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.test.avito.bot.TestBot;
 import ru.test.avito.domain.UserEntity;
 import ru.test.avito.repository.AdvertRepository;
-import ru.test.avito.repository.TestRepository;
 import ru.test.avito.repository.UserRepository;
 
-@Component
+@Service
 public class UpdateManager {
 
-    private TestRepository testRepository;
     private AdvertRepository advertRepository;
     private UserRepository userRepository;
     private TestBot testBot;
     private PipeManager pipeManager;
 
 
-    public UpdateManager(TestRepository testRepository, AdvertRepository advertRepository,
+    public UpdateManager(AdvertRepository advertRepository,
                          UserRepository userRepository, TestBot testBot, PipeManager pipeManager) {
-        this.testRepository = testRepository;
         this.advertRepository = advertRepository;
         this.userRepository = userRepository;
         this.testBot = testBot;

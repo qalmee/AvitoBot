@@ -30,7 +30,14 @@ public class MessageFactory {
 
     public static SendMessage createAdvert(String chatId) {
         return new SendMessage()
-                .setText("Send the text of advert and some photos. When you are done just type /done")
+                .setText("Send a message with text of an advert. Then photos.")
+                .setReplyMarkup(KeyboardFactory.createAdvert())
+                .setChatId(chatId);
+    }
+
+    public static SendMessage attachPhotosToAdvert(String chatId) {
+        return new SendMessage()
+                .setText("Good. Now send photos.\nWhen you are done just type /done")
                 .setReplyMarkup(KeyboardFactory.createAdvert())
                 .setChatId(chatId);
     }
