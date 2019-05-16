@@ -6,7 +6,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.test.avito.bot.TestBot;
 import ru.test.avito.domain.UserEntity;
 import ru.test.avito.pipeline.PipeState;
-import ru.test.avito.repository.AdvertRepository;
 import ru.test.avito.repository.UserRepository;
 import ru.test.avito.service.KeyboardFactory;
 import ru.test.avito.service.MessageFactory;
@@ -14,23 +13,23 @@ import ru.test.avito.service.MessageFactory;
 @Service
 public class PipeManager {
 
-    private AdvertRepository advertRepository;
+    private AdvertManager advertManager;
     private UserRepository userRepository;
     private TestBot testBot;
 
-    public PipeManager(AdvertRepository advertRepository, UserRepository userRepository, TestBot testBot) {
-        this.advertRepository = advertRepository;
+    public PipeManager(AdvertManager advertManager, UserRepository userRepository, TestBot testBot) {
+        this.advertManager = advertManager;
         this.userRepository = userRepository;
         this.testBot = testBot;
     }
 
     void moveThrough(Update update, UserEntity userEntity) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            moveThroughWithMessage(update, userEntity);
+            moveThroughWithTextMessage(update, userEntity);
         }
     }
 
-    private void moveThroughWithMessage(Update update, UserEntity userEntity) {
+    private void moveThroughWithTextMessage(Update update, UserEntity userEntity) {
         if (checkForUnconditionalTransition(update, userEntity)) {
             return;
         }
@@ -61,15 +60,23 @@ public class PipeManager {
             //todo: create an advert
             case CreateAdvert:
                 if (messageText.equals(KeyboardFactory.done)) {
-
+                    userEntity.setPipeState(PipeState.None);
                 } else {
-
+                    userEntity.setPipeState(PipeState.AddPhotosToAdvert);
+                    advertManager.createAnAdvert(messageText, update.getMessage().getFrom().getId());
                 }
+                break;
+            case AddPhotosToAdvert:
+                break;
             case SeeAdverts:
                 break;
             case Buyer:
                 break;
         }
+    }
+
+    private void moveThroughWithPhotoMessage(Update update, UserEntity userEntity) {
+
     }
 
 
