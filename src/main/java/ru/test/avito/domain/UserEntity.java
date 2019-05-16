@@ -10,7 +10,8 @@ import javax.persistence.*;
 @Table(name = "users")
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "users_gen")
+    @SequenceGenerator(name = "users_gen", sequenceName = "users_seq")
     private Long id;
     @Column(unique = true, nullable = false)
     private Integer userId;
