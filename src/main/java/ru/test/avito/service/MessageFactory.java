@@ -1,6 +1,12 @@
 package ru.test.avito.service;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import ru.test.avito.DTO.AdvertMessage;
+import ru.test.avito.domain.Advert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MessageFactory {
     private MessageFactory() {
@@ -42,6 +48,13 @@ public class MessageFactory {
                 .setChatId(chatId);
     }
 
+    public static SendMessage advertDone(String chatId) {
+        return new SendMessage()
+                .setText("Cool. Advert is now active.")
+                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setChatId(chatId);
+    }
+
     public static SendMessage seeOwnAdverts(String chatId) {
         return new SendMessage()
                 .setText("own adverts")
@@ -55,5 +68,50 @@ public class MessageFactory {
                 .setReplyMarkup(KeyboardFactory.buyerKeyboard())
                 .setChatId(chatId);
     }
+
+    //dto
+    public static List<AdvertMessage> ownAdverts(String chatId, List<Advert> adverts) {
+        List<AdvertMessage> advertMessages = new ArrayList<>();
+        for (Advert advert : adverts) {
+            AdvertMessage message = new AdvertMessage();
+            message.setMessage(new SendMessage()
+                    .setChatId(chatId)
+                    .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                    .setText(advert.getText()));
+            if (advert.getPhotos() != null) {
+                for (String photoId : advert.getPhotos()) {
+                    message.addPhoto(new SendPhoto()
+                            .setChatId(chatId)
+                            .setPhoto(photoId));
+                }
+            }
+            advertMessages.add(message);
+        }
+        return advertMessages;
+    }
+
+    public static SendMessage ownAdvertsWelcome(String chatId) {
+        return new SendMessage()
+                .setText("This is your adverts.\n")
+                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setChatId(chatId);
+
+    }
+
+    public static SendMessage divider(String chatId) {
+        return new SendMessage()
+                .setText("----------\n----------\n----------")
+                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setChatId(chatId);
+
+    }
+
+    public static SendMessage noAdverts(String chatId) {
+        return new SendMessage()
+                .setText("You have no adverts.")
+                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setChatId(chatId);
+    }
+
 
 }
