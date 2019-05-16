@@ -30,6 +30,34 @@ public class TestBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+//        if (update.hasMessage() && update.getMessage().hasPhoto()) {
+//            System.out.println("size = " + update.getMessage().getPhoto().size());
+//            for (PhotoSize photoSize : update.getMessage().getPhoto()) {
+//                System.out.println(photoSize.getFileId());
+//                System.out.println(photoSize.getFilePath());
+//                System.out.println(photoSize.getFileSize());
+//            }
+//            SendPhoto sendPhoto = new SendPhoto()
+//                    .setChatId(update.getMessage().getChatId())
+//                    .setPhoto(update.getMessage().getPhoto().get(0).getFileId());
+//            SendPhoto sendPhoto1 = new SendPhoto()
+//                    .setChatId(update.getMessage().getChatId())
+//                    .setPhoto(update.getMessage().getPhoto().get(1).getFileId());
+//            SendPhoto sendPhoto2 = new SendPhoto()
+//                    .setChatId(update.getMessage().getChatId())
+//                    .setPhoto(update.getMessage().getPhoto().get(2).getFileId());
+//            SendPhoto sendPhoto3 = new SendPhoto()
+//                    .setChatId(update.getMessage().getChatId())
+//                    .setPhoto(update.getMessage().getPhoto().get(3).getFileId());
+//            try {
+//                execute(sendPhoto);
+//                execute(sendPhoto3);
+//            } catch (TelegramApiException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+
         updateManager.update(update);
     }
 
