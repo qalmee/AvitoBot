@@ -1,28 +1,41 @@
 package ru.test.avito.domain;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 
 @Entity
 @Table(name = "adverts_in_progress")
 public class AdvertInProgress {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Column(length = 1023)
     private String text;
+
     @Column
     private ArrayList<String> photos;
-    @Column(nullable = false)
-    private Integer hostId;
 
-    public AdvertInProgress(String text, ArrayList<String> photos, Integer hostId) {
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "host_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private UserEntity host;
+
+    public AdvertInProgress(String text, ArrayList<String> photos, UserEntity host) {
         this.text = text;
         this.photos = photos;
-        this.hostId = hostId;
+        this.host = host;
     }
 
     public AdvertInProgress() {
+    }
+
+    public AdvertInProgress(UserEntity host) {
+        this.host = host;
     }
 
     public Long getId() {
@@ -49,6 +62,14 @@ public class AdvertInProgress {
         this.photos = photos;
     }
 
+    public UserEntity getHost() {
+        return host;
+    }
+
+    public void setHost(UserEntity host) {
+        this.host = host;
+    }
+
     public void addPhoto(String photo) {
         if (photos == null) {
             photos = new ArrayList<>();
@@ -56,21 +77,13 @@ public class AdvertInProgress {
         photos.add(photo);
     }
 
-    public Integer getHostId() {
-        return hostId;
-    }
-
-    public void setHostId(Integer hostId) {
-        this.hostId = hostId;
-    }
-
     @Override
     public String toString() {
-        return "Advert{" +
+        return "AdvertInProgress{" +
                 "id=" + id +
                 ", text='" + text + '\'' +
                 ", photos=" + photos +
-                ", hostId='" + hostId + '\'' +
+                ", host=" + host +
                 '}';
     }
 }

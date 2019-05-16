@@ -1,5 +1,8 @@
 package ru.test.avito.domain;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,19 +17,22 @@ public class Advert {
     private String text;
     @Column
     private ArrayList<String> photos;
-    @Column(nullable = false)
-    private Integer hostId;
 
-    public Advert(String text, ArrayList<String> photos, Integer hostId) {
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "host_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private UserEntity host;
+
+    public Advert(String text, ArrayList<String> photos, UserEntity host) {
         this.text = text;
         this.photos = photos;
-        this.hostId = hostId;
+        this.host = host;
     }
 
     public Advert(AdvertInProgress advertInProgress) {
         this.text = advertInProgress.getText();
         this.photos = advertInProgress.getPhotos();
-        this.hostId = advertInProgress.getHostId();
+        this.host = advertInProgress.getHost();
     }
 
     public Advert() {
@@ -63,21 +69,13 @@ public class Advert {
         photos.add(photo);
     }
 
-    public Integer getHostId() {
-        return hostId;
-    }
-
-    public void setHostId(Integer hostId) {
-        this.hostId = hostId;
-    }
-
     @Override
     public String toString() {
         return "Advert{" +
                 "id=" + id +
                 ", text='" + text + '\'' +
                 ", photos=" + photos +
-                ", hostId='" + hostId + '\'' +
+                ", host=" + host +
                 '}';
     }
 }

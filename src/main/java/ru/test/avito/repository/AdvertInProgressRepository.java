@@ -2,11 +2,13 @@ package ru.test.avito.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.test.avito.domain.AdvertInProgress;
+import ru.test.avito.domain.UserEntity;
 
 public interface AdvertInProgressRepository extends JpaRepository<AdvertInProgress, Long> {
-    AdvertInProgress getByHostId(Integer hostId);
 
-    Boolean existsByHostId(Integer hostId);
+    AdvertInProgress getByHost(UserEntity host);
 
-    void deleteByHostId(Integer hostId);
+    Boolean existsByHost(UserEntity host);
+
+    void deleteByHost(UserEntity host);
 }
