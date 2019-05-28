@@ -8,12 +8,12 @@ import ru.test.avito.repository.AdvertInProgressRepository;
 import ru.test.avito.repository.AdvertRepository;
 
 @Component
-public class AdvertManager {
+public class AdvertCreationManager {
 
-    private AdvertRepository advertRepository;
-    private AdvertInProgressRepository advertInProgressRepository;
+    private final AdvertRepository advertRepository;
+    private final AdvertInProgressRepository advertInProgressRepository;
 
-    public AdvertManager(AdvertRepository advertRepository, AdvertInProgressRepository advertInProgressRepository) {
+    public AdvertCreationManager(AdvertRepository advertRepository, AdvertInProgressRepository advertInProgressRepository) {
         this.advertRepository = advertRepository;
         this.advertInProgressRepository = advertInProgressRepository;
     }

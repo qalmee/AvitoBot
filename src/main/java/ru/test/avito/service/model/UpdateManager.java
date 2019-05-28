@@ -10,14 +10,13 @@ import ru.test.avito.repository.UserRepository;
 @Service
 public class UpdateManager {
 
-    private AdvertRepository advertRepository;
-    private UserRepository userRepository;
-    private TestBot testBot;
-    private PipeManager pipeManager;
+    private final AdvertRepository advertRepository;
+    private final UserRepository userRepository;
+    private final TestBot testBot;
+    private final PipeManager pipeManager;
 
-
-    public UpdateManager(AdvertRepository advertRepository,
-                         UserRepository userRepository, TestBot testBot, PipeManager pipeManager) {
+    public UpdateManager(AdvertRepository advertRepository, UserRepository userRepository, TestBot testBot,
+                         PipeManager pipeManager) {
         this.advertRepository = advertRepository;
         this.userRepository = userRepository;
         this.testBot = testBot;

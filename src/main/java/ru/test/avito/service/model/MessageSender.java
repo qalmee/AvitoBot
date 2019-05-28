@@ -17,8 +17,8 @@ import java.util.List;
 @Component
 public class MessageSender {
 
-    AdvertRepository advertRepository;
-    private TestBot testBot;
+    private final AdvertRepository advertRepository;
+    private final TestBot testBot;
 
     public MessageSender(TestBot testBot, AdvertRepository advertRepository) {
         this.testBot = testBot;

@@ -11,4 +11,6 @@ public interface AdvertRepository extends JpaRepository<Advert, Long> {
     Optional<Advert> findByHost(UserEntity host);
 
     List<Advert> findAllByHost(UserEntity host);
+
+    Advert findByHostAndId(UserEntity host, Long id);
 }
