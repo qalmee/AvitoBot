@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.test.avito.bot.TestBot;
+import ru.test.avito.dao.AdvertDao;
 import ru.test.avito.domain.UserEntity;
 import ru.test.avito.pipeline.PipeState;
 import ru.test.avito.repository.UserRepository;
@@ -14,16 +15,20 @@ import ru.test.avito.service.MessageFactory;
 @Service
 public class PipeManager {
 
-    private AdvertManager advertManager;
-    private UserRepository userRepository;
-    private MessageSender messageSender;
-    private TestBot testBot;
+    private final AdvertCreationManager advertCreationManager;
+    private final UserRepository userRepository;
+    private final MessageSender messageSender;
+    private final AdvertDao advertDao;
+    private final TestBot testBot;
 
-    public PipeManager(AdvertManager advertManager, UserRepository userRepository, MessageSender messageSender, TestBot testBot) {
-        this.advertManager = advertManager;
+    public PipeManager(AdvertCreationManager advertCreationManager, UserRepository userRepository,
+                       MessageSender messageSender, AdvertDao advertDao, TestBot testBot) {
+        this.advertCreationManager = advertCreationManager;
         this.userRepository = userRepository;
         this.messageSender = messageSender;
+        this.advertDao = advertDao;
         this.testBot = testBot;
+        advertDao.initializeHibernateSearch();
     }
 
     void moveThrough(Update update, UserEntity userEntity) {
@@ -45,7 +50,7 @@ public class PipeManager {
             case Seller:
                 switch (messageText) {
                     case KeyboardFactory.createAnAdvert:
-                        advertManager.abortAdvert(userEntity); //remove advertInProgress if exists from previous attempt
+                        advertCreationManager.abortAdvert(userEntity); //remove advertInProgress if exists from previous attempt
                         try {
                             testBot.execute(MessageFactory.createAdvert(update.getMessage().getChatId().toString()));
                         } catch (TelegramApiException e) {
@@ -65,7 +70,7 @@ public class PipeManager {
                 if (messageText.equals(KeyboardFactory.done)) {
                     userEntity.setPipeState(PipeState.None);
                 } else {
-                    advertManager.createAnAdvert(messageText, userEntity);
+                    advertCreationManager.createAnAdvert(messageText, userEntity);
                     userEntity.setPipeState(PipeState.AddPhotosToAdvert);
                     try {
                         testBot.execute(MessageFactory.attachPhotosToAdvert(update.getMessage().getChatId().toString()));
@@ -76,7 +81,7 @@ public class PipeManager {
                 break;
             case AddPhotosToAdvert:
                 if (messageText.equals(KeyboardFactory.done)) {
-                    advertManager.advertFinished(userEntity);
+                    advertCreationManager.advertFinished(userEntity);
                     try {
                         testBot.execute(MessageFactory.advertDone(update.getMessage().getChatId().toString()));
                         testBot.execute(MessageFactory.sellStart(update.getMessage().getChatId().toString()));
@@ -96,7 +101,7 @@ public class PipeManager {
     private void moveThroughWithPhotoMessage(Update update, UserEntity userEntity) {
         PhotoSize photo = update.getMessage().getPhoto().get(update.getMessage().getPhoto().size() - 1);
         if (userEntity.getPipeState() == PipeState.AddPhotosToAdvert) {
-            advertManager.addPhotoToAdvert(photo.getFileId(), userEntity);
+            advertCreationManager.addPhotoToAdvert(photo.getFileId(), userEntity);
         }
     }
 
@@ -134,6 +139,12 @@ public class PipeManager {
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
+                return true;
+            case "/test":
+                advertDao.getAdvert();
+                return true;
+            case "/test1":
+                advertDao.saveSome();
                 return true;
         }
         return false;
