@@ -14,6 +14,9 @@ public class AdvertInProgress {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column
+    private Long advertId;
+
     @Column(length = 1023)
     private String text;
 
@@ -34,6 +37,13 @@ public class AdvertInProgress {
     public AdvertInProgress() {
     }
 
+    public AdvertInProgress(Advert advert) {
+        this.advertId = advert.getId();
+        this.text = advert.getText();
+        this.photos = advert.getPhotos();
+        this.host = advert.getHost();
+    }
+
     public AdvertInProgress(UserEntity host) {
         this.host = host;
     }
@@ -44,6 +54,14 @@ public class AdvertInProgress {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getAdvertId() {
+        return advertId;
+    }
+
+    public void setAdvertId(Long advertId) {
+        this.advertId = advertId;
     }
 
     public String getText() {

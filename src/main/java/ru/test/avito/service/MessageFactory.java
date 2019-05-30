@@ -29,7 +29,7 @@ public class MessageFactory {
                 .setChatId(chatId);
     }
 
-    public static SendMessage sellStart(String chatId) {
+    public static SendMessage startSell(String chatId) {
         return new SendMessage()
                 .setText("Sell anything you want.")
                 .setReplyMarkup(KeyboardFactory.sellerKeyboard())
@@ -64,33 +64,25 @@ public class MessageFactory {
                 .setChatId(chatId);
     }
 
-    public static SendMessage greetBuyer(String chatId) {
+    public static SendMessage startBuy(String chatId) {
         return new SendMessage()
                 .setText("Very well. This is catalog. Hope you will like it.")
                 .setReplyMarkup(KeyboardFactory.buyerKeyboard())
                 .setChatId(chatId);
     }
 
+    public static SendMessage startSearch(String chatId) {
+        return new SendMessage()
+                .setText("Type in your search query.")
+                .setReplyMarkup(KeyboardFactory.exitKeyboard())
+                .setChatId(chatId);
+    }
+
     //dto
-    public static List<AdvertMessage> ownAdverts(String chatId, List<Advert> adverts) {
+    public static List<AdvertMessage> advertMessages(String chatId, List<Advert> adverts, boolean editable) {
         List<AdvertMessage> advertMessages = new ArrayList<>();
-        SendMediaGroup sendMediaGroup;
         for (Advert advert : adverts) {
-            AdvertMessage message = new AdvertMessage();
-            message.setMessage(new SendMessage()
-                    .setChatId(chatId)
-                    .setReplyMarkup(KeyboardFactory.keyboardRemove())
-                    .setText(advert.getText()));
-            if (advert.getPhotos() != null) {
-                List<InputMedia> photos = new ArrayList<>();
-                for (String photoId : advert.getPhotos()) {
-                    photos.add(new InputMediaPhoto().setMedia(photoId));
-                }
-                sendMediaGroup = new SendMediaGroup();
-                sendMediaGroup.setChatId(chatId).setMedia(photos);
-                message.setPhotos(sendMediaGroup);
-            }
-            advertMessages.add(message);
+            advertMessages.add(advertToMessage(chatId, advert, editable));
         }
         return advertMessages;
     }
@@ -98,15 +90,25 @@ public class MessageFactory {
     public static SendMessage ownAdvertsWelcome(String chatId) {
         return new SendMessage()
                 .setText("This is your adverts.\n")
-                .setReplyMarkup(KeyboardFactory.keyboardRemove())
                 .setChatId(chatId);
 
     }
 
+    public static SendMessage searchAdvertsWelcome(String chatId) {
+        return new SendMessage()
+                .setText("Search results:\n")
+                .setChatId(chatId);
+    }
+
+    public static SendMessage noSearchAdverts(String chatId) {
+        return new SendMessage()
+                .setText("No adverts was found.\n")
+                .setChatId(chatId);
+    }
+
     public static SendMessage divider(String chatId) {
         return new SendMessage()
-                .setText("----------\n----------\n----------")
-                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setText("----------\n----------")
                 .setChatId(chatId);
 
     }
@@ -118,5 +120,60 @@ public class MessageFactory {
                 .setChatId(chatId);
     }
 
+    public static SendMessage advertDeleted(String chatId) {
+        return new SendMessage()
+                .setText("Advert deleted.")
+                .setChatId(chatId);
+    }
+
+    public static SendMessage editAdvert(String chatId) {
+        return new SendMessage()
+                .setText("Enter new advert text. If you do not want to change it, type /next.")
+                .setReplyMarkup(KeyboardFactory.exitAndSkipKeyboard())
+                .setChatId(chatId);
+    }
+
+    public static SendMessage editAdvertPhotos(String chatId) {
+        return new SendMessage()
+                .setText("Send new advert photos. When you are done or do not want to change it type /next.")
+                .setReplyMarkup(KeyboardFactory.exitAndSkipKeyboard())
+                .setChatId(chatId);
+    }
+
+    public static SendMessage discardEdit(String chatId) {
+        return new SendMessage()
+                .setText("All changes have been discarded.")
+                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setChatId(chatId);
+    }
+
+    public static SendMessage editFinished(String chatId) {
+        return new SendMessage()
+                .setText("All changes have been saved.")
+                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setChatId(chatId);
+    }
+
+
+    public static AdvertMessage advertToMessage(String chatId, Advert advert, boolean editable) {
+        AdvertMessage message = new AdvertMessage();
+        SendMessage sendMessage = new SendMessage();
+        if (editable) {
+            sendMessage.setReplyMarkup(KeyboardFactory.inlineManageAdvertKeyboard(advert.getId()));
+        }
+        message.setMessage(sendMessage
+                .setChatId(chatId)
+                .setText(advert.getText()));
+        if (advert.getPhotos() != null) {
+            List<InputMedia> photos = new ArrayList<>();
+            for (String photoId : advert.getPhotos()) {
+                photos.add(new InputMediaPhoto().setMedia(photoId).setCaption(advert.getText()));
+            }
+            SendMediaGroup sendMediaGroup = new SendMediaGroup();
+            sendMediaGroup.setChatId(chatId).setMedia(photos);
+            message.setPhotos(sendMediaGroup);
+        }
+        return message;
+    }
 
 }

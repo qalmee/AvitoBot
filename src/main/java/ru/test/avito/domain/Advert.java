@@ -8,7 +8,6 @@ import org.hibernate.search.annotations.TermVector;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "adverts")
@@ -60,7 +59,7 @@ public class Advert {
         this.text = text;
     }
 
-    public List<String> getPhotos() {
+    public ArrayList<String> getPhotos() {
         return photos;
     }
 
@@ -73,6 +72,14 @@ public class Advert {
             photos = new ArrayList<>();
         }
         photos.add(photo);
+    }
+
+    public UserEntity getHost() {
+        return host;
+    }
+
+    public void setHost(UserEntity host) {
+        this.host = host;
     }
 
     @Override

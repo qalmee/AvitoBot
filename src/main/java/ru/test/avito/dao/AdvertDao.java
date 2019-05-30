@@ -52,6 +52,28 @@ public class AdvertDao {
 
     }
 
+    public List<Advert> searchAdverts(String searchQuery) {
+        QueryBuilder queryBuilder = getQueryBuilder();
+        Query query = queryBuilder
+                .phrase()
+                .withSlop(1000)
+                .onField("text")
+                .sentence(searchQuery)
+                .createQuery();
+
+        return getJpaQuery(query).getResultList();
+    }
+
+    public List<Advert> searchAdverts1(String searchQuery) {
+        QueryBuilder queryBuilder = getQueryBuilder();
+        Query query = queryBuilder
+                .simpleQueryString()
+                .onField("text")
+                .matching("\"" + searchQuery + "\"~1000")
+                .createQuery();
+        return getJpaQuery(query).getResultList();
+    }
+
     private FullTextQuery getJpaQuery(Query query) {
         FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 
