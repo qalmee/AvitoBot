@@ -78,7 +78,7 @@ public class PipeManager {
                         userEntity.setPipeState(PipeState.CreateAdvert);
                         break;
                     case KeyboardFactory.SeeAdverts:
-                        messageSender.sendAllAdvertsByHostId(userEntity, update.getMessage().getChatId().toString());
+                        messageSender.sendAllAdvertsFromHost(userEntity, update.getMessage().getChatId().toString());
                         break;
                     case KeyboardFactory.sellerRow3:
                         break;
@@ -135,6 +135,7 @@ public class PipeManager {
                         userEntity.setPipeState(PipeState.SearchAdverts);
                         break;
                     case KeyboardFactory.buyerRow2:
+                        messageSender.sendAllSavedAdverts(userEntity, update.getMessage().getChatId().toString());
                         break;
                 }
                 break;
@@ -151,12 +152,6 @@ public class PipeManager {
     }
 
     private void moveThroughWithCallbackQuery(Update update, UserEntity userEntity) {
-        System.out.println(update.getCallbackQuery().getData());
-        System.out.println(update.getCallbackQuery().getMessage());
-        System.out.println(update.getCallbackQuery().getId());
-        System.out.println(update.getCallbackQuery().getInlineMessageId());
-
-
         CallbackAdvertData data;
         try {
             data = objectMapper.readValue(update.getCallbackQuery().getData(), CallbackAdvertData.class);
@@ -164,19 +159,32 @@ public class PipeManager {
             e.printStackTrace();
             return;
         }
-        if (data.getAction().equals(KeyboardFactory.edit)) {
-            Optional<Advert> advert = advertRepository.findById(data.getAdvertId());
-            if (!advert.isPresent()) {
-                return;
-            }
-            advertCreationManager.startEditAdvert(advert.get());
-            messageSender.editAdvert(update.getCallbackQuery().getMessage().getChatId().toString());
-            userEntity.setPipeState(PipeState.EditAdvert);
-        } else if (data.getAction().equals(KeyboardFactory.delete)) {
-            if (advertRepository.existsById(data.getAdvertId())) {
-                advertRepository.delete(advertRepository.getOne(data.getAdvertId()));
-            }
-            messageSender.sendAdvertDeleted(update.getCallbackQuery().getMessage().getChatId().toString());
+        messageSender.manageAdvert(update.getCallbackQuery().getMessage().getChatId().toString(),
+                update.getCallbackQuery().getMessage().getMessageId());
+        switch (data.getAction()) {
+            case KeyboardFactory.edit:
+                Optional<Advert> advert = advertRepository.findById(data.getAdvertId());
+                if (!advert.isPresent()) {
+                    return;
+                }
+                advertCreationManager.startEditAdvert(advert.get());
+                messageSender.editAdvert(update.getCallbackQuery().getMessage().getChatId().toString());
+                userEntity.setPipeState(PipeState.EditAdvert);
+                break;
+            case KeyboardFactory.delete:
+                if (advertRepository.existsById(data.getAdvertId())) {
+                    advertRepository.delete(advertRepository.getOne(data.getAdvertId()));
+                }
+                messageSender.sendAdvertDeleted(update.getCallbackQuery().getMessage().getChatId().toString());
+                break;
+            case KeyboardFactory.save:
+                if (advertRepository.existsById(data.getAdvertId())) {
+                    userEntity.saveOne(advertRepository.getOne(data.getAdvertId()));
+                }
+                break;
+            case KeyboardFactory.removeFromSaved:
+                userEntity.getSaved().removeIf(advert1 -> advert1.getId().equals(data.getAdvertId()));
+                break;
         }
 
     }
@@ -215,15 +223,6 @@ public class PipeManager {
                 return true;
             case "/test":
                 messageSender.sendAnswerToMessage(update);
-//                try {
-////                    testBot.execute(new SendMessage()
-////                            .setChatId(update.getMessage().getChatId())
-////                            .setText("hahahaha")
-////                            .setReplyMarkup(KeyboardFactory.inlineManageAdvertKeyboard()));
-////                } catch (TelegramApiException e) {
-////                    e.printStackTrace();
-////                }
-//                advertDao.getAdvert();
                 return true;
             case "/test1":
                 advertDao.saveSome();

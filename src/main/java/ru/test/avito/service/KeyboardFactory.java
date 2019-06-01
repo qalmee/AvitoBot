@@ -20,7 +20,7 @@ public class KeyboardFactory {
     public static final String sellerRow3 = "sellerRow3";
 
     public static final String buyerRow1 = "Search";
-    public static final String buyerRow2 = "Show featured";
+    public static final String buyerRow2 = "Show saved";
     public static final String buyerRow3 = "buy3";
 
     public static final String sell = "/sell";
@@ -33,6 +33,8 @@ public class KeyboardFactory {
 
     public static final String edit = "Edit";
     public static final String delete = "Delete";
+    public static final String save = "Save";
+    public static final String removeFromSaved = "Remove";
 
     private KeyboardFactory() {
     }
@@ -132,14 +134,14 @@ public class KeyboardFactory {
         return new ReplyKeyboardRemove();
     }
 
-    static InlineKeyboardMarkup inlineManageAdvertKeyboard(long id) {
+    static InlineKeyboardMarkup inlineManageAdvertKeyboard(long advertId) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> keyboardRow1 = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
         String dataEdit = "", dataDelete = "";
         try {
-            dataEdit = objectMapper.writeValueAsString(new CallbackAdvertData(edit, id));
-            dataDelete = objectMapper.writeValueAsString(new CallbackAdvertData(delete, id));
+            dataEdit = objectMapper.writeValueAsString(new CallbackAdvertData(edit, advertId));
+            dataDelete = objectMapper.writeValueAsString(new CallbackAdvertData(delete, advertId));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -149,6 +151,45 @@ public class KeyboardFactory {
         keyboardRow1.add(new InlineKeyboardButton()
                 .setCallbackData(dataDelete)
                 .setText(delete));
+        keyboard.add(keyboardRow1);
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    static InlineKeyboardMarkup inlineManageAdvertInSavedKeyboard(long advertId) {
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> keyboardRow1 = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String dataDelete = "";
+        try {
+            dataDelete = objectMapper
+                    .writeValueAsString(new CallbackAdvertData(removeFromSaved, advertId));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        keyboardRow1.add(new InlineKeyboardButton()
+                .setCallbackData(dataDelete)
+                .setText(removeFromSaved));
+        keyboard.add(keyboardRow1);
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    static InlineKeyboardMarkup inlineSaveAdvertKeyboard(long advertId) {
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> keyboardRow1 = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String dataSave = "";
+        try {
+            dataSave = objectMapper.writeValueAsString(new CallbackAdvertData(save, advertId));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        keyboardRow1.add(new InlineKeyboardButton()
+                .setCallbackData(dataSave)
+                .setText(save));
         keyboard.add(keyboardRow1);
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(keyboard);

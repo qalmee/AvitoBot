@@ -36,7 +36,8 @@ public class AdvertCreationManager {
     public void advertFinished(UserEntity host) {
         AdvertInProgress advertInProgress = advertInProgressRepository.getByHost(host);
         Advert advert = new Advert(advertInProgress);
-        if (advertRepository.existsById(advertInProgress.getAdvertId())) {
+        if (advertInProgress.getAdvertId() != null
+                && advertRepository.existsById(advertInProgress.getAdvertId())) {
             advertRepository.deleteById(advertInProgress.getAdvertId());
         }
         advertRepository.save(advert);

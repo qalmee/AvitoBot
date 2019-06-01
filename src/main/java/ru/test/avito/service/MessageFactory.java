@@ -9,6 +9,7 @@ import ru.test.avito.domain.Advert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MessageFactory {
     private MessageFactory() {
@@ -79,10 +80,29 @@ public class MessageFactory {
     }
 
     //dto
-    public static List<AdvertMessage> advertMessages(String chatId, List<Advert> adverts, boolean editable) {
+    public static List<AdvertMessage> advertMessagesWithSave(String chatId, List<Advert> adverts) {
         List<AdvertMessage> advertMessages = new ArrayList<>();
         for (Advert advert : adverts) {
-            advertMessages.add(advertToMessage(chatId, advert, editable));
+            AdvertMessage advertMessage = advertToMessage(chatId, advert);
+            advertMessages.add(setInlineSaveKeyboard(advertMessage, advert, chatId));
+        }
+        return advertMessages;
+    }
+
+    public static List<AdvertMessage> advertMessagesWithEdit(String chatId, List<Advert> adverts) {
+        List<AdvertMessage> advertMessages = new ArrayList<>();
+        for (Advert advert : adverts) {
+            AdvertMessage advertMessage = advertToMessage(chatId, advert);
+            advertMessages.add(setInlineEditKeyboard(advertMessage, advert, chatId));
+        }
+        return advertMessages;
+    }
+
+    public static List<AdvertMessage> advertMessagesWithEditInSave(String chatId, Set<Advert> adverts) {
+        List<AdvertMessage> advertMessages = new ArrayList<>();
+        for (Advert advert : adverts) {
+            AdvertMessage advertMessage = advertToMessage(chatId, advert);
+            advertMessages.add(setInlineEditInSavedKeyboard(advertMessage, advert, chatId));
         }
         return advertMessages;
     }
@@ -113,10 +133,15 @@ public class MessageFactory {
 
     }
 
-    public static SendMessage noAdverts(String chatId) {
+    public static SendMessage noAdvertsFromHost(String chatId) {
         return new SendMessage()
                 .setText("You have no adverts.")
-                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setChatId(chatId);
+    }
+
+    public static SendMessage noSavedAdverts(String chatId) {
+        return new SendMessage()
+                .setText("You have no adverts in featured.")
                 .setChatId(chatId);
     }
 
@@ -155,12 +180,9 @@ public class MessageFactory {
     }
 
 
-    public static AdvertMessage advertToMessage(String chatId, Advert advert, boolean editable) {
+    private static AdvertMessage advertToMessage(String chatId, Advert advert) {
         AdvertMessage message = new AdvertMessage();
         SendMessage sendMessage = new SendMessage();
-        if (editable) {
-            sendMessage.setReplyMarkup(KeyboardFactory.inlineManageAdvertKeyboard(advert.getId()));
-        }
         message.setMessage(sendMessage
                 .setChatId(chatId)
                 .setText(advert.getText()));
@@ -174,6 +196,30 @@ public class MessageFactory {
             message.setPhotos(sendMediaGroup);
         }
         return message;
+    }
+
+    private static AdvertMessage setInlineSaveKeyboard(AdvertMessage advertMessage, Advert advert, String chatId) {
+        advertMessage.setInlineEdit(new SendMessage()
+                .setChatId(chatId)
+                .setText("Add to saved:")
+                .setReplyMarkup(KeyboardFactory.inlineSaveAdvertKeyboard(advert.getId())));
+        return advertMessage;
+    }
+
+    private static AdvertMessage setInlineEditKeyboard(AdvertMessage advertMessage, Advert advert, String chatId) {
+        advertMessage.setInlineEdit(new SendMessage()
+                .setChatId(chatId)
+                .setText("Manage your advert:")
+                .setReplyMarkup(KeyboardFactory.inlineManageAdvertKeyboard(advert.getId())));
+        return advertMessage;
+    }
+
+    private static AdvertMessage setInlineEditInSavedKeyboard(AdvertMessage advertMessage, Advert advert, String chatId) {
+        advertMessage.setInlineEdit(new SendMessage()
+                .setChatId(chatId)
+                .setText("Remove from saved:")
+                .setReplyMarkup(KeyboardFactory.inlineManageAdvertInSavedKeyboard(advert.getId())));
+        return advertMessage;
     }
 
 }

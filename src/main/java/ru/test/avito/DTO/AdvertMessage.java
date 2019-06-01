@@ -6,10 +6,12 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 public class AdvertMessage {
     private SendMessage message;
     private SendMediaGroup photos;
+    private SendMessage inlineEdit;
 
-    public AdvertMessage(SendMessage message, SendMediaGroup photos) {
+    public AdvertMessage(SendMessage message, SendMediaGroup photos, SendMessage inlineEdit) {
         this.message = message;
         this.photos = photos;
+        this.inlineEdit = inlineEdit;
     }
 
     public AdvertMessage() {
@@ -35,5 +37,11 @@ public class AdvertMessage {
         return photos != null;
     }
 
+    public SendMessage getInlineEdit() {
+        return inlineEdit;
+    }
 
+    public void setInlineEdit(SendMessage inlineEdit) {
+        this.inlineEdit = inlineEdit;
+    }
 }
