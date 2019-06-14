@@ -7,16 +7,22 @@ import ru.test.avito.domain.AdvertInProgress;
 import ru.test.avito.domain.UserEntity;
 import ru.test.avito.repository.AdvertInProgressRepository;
 import ru.test.avito.repository.AdvertRepository;
+import ru.test.avito.repository.UserRepository;
+
+import java.util.List;
 
 @Component
 @Transactional
 public class AdvertCreationManager {
 
     private final AdvertRepository advertRepository;
+    private final UserRepository userRepository;
     private final AdvertInProgressRepository advertInProgressRepository;
 
-    public AdvertCreationManager(AdvertRepository advertRepository, AdvertInProgressRepository advertInProgressRepository) {
+    public AdvertCreationManager(AdvertRepository advertRepository, UserRepository userRepository,
+                                 AdvertInProgressRepository advertInProgressRepository) {
         this.advertRepository = advertRepository;
+        this.userRepository = userRepository;
         this.advertInProgressRepository = advertInProgressRepository;
     }
 
@@ -40,12 +46,30 @@ public class AdvertCreationManager {
                 && advertRepository.existsById(advertInProgress.getAdvertId())) {
             advertRepository.deleteById(advertInProgress.getAdvertId());
         }
-        advertRepository.save(advert);
+        Long oldId = advert.getId();
+        advert = advertRepository.save(advert);
+        if (oldId != null) {
+            if (host.getSavedAdvertIds().remove(oldId)) {
+                host.getSavedAdvertIds().add(advert.getId());
+            }
+            userRepository.saveAndFlush(host);
+
+            List<UserEntity> users = userRepository.findBySavedAdvertIdsContaining(oldId);
+            if (users != null && !users.isEmpty()) {
+                for (UserEntity user : users) {
+                    user.getSavedAdvertIds().remove(oldId);
+                    user.getSavedAdvertIds().add(advert.getId());
+                }
+                userRepository.saveAll(users);
+            }
+        }
         advertInProgressRepository.delete(advertInProgress);
     }
 
     public void abortAdvert(UserEntity host) {
-        advertInProgressRepository.deleteByHost(host);
+        if (advertInProgressRepository.existsByHost(host)) {
+            advertInProgressRepository.deleteByHost(host);
+        }
     }
 
     public void startEditAdvert(Advert advert) {

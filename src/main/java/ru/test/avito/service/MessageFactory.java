@@ -9,7 +9,6 @@ import ru.test.avito.domain.Advert;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class MessageFactory {
     private MessageFactory() {
@@ -18,21 +17,28 @@ public class MessageFactory {
 
     public static SendMessage getStart(String chatId) {
         return new SendMessage()
-                .setText("This is very good bot!")
+                .setText("This bot can help you with buying and selling things.\n\n" +
+                        "You can control by these commands:\n\n" +
+                        "/sell - to sell something\n" +
+                        "/buy - to buy something\n" +
+                        "/help - to see help")
                 .setReplyMarkup(KeyboardFactory.keyboardRemove())
                 .setChatId(chatId);
     }
 
     public static SendMessage getHelp(String chatId) {
         return new SendMessage()
-                .setText("This is very useful help to help you with your hopefully helpful situation.")
-                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setText("This bot can help you with buying and selling things.\n\n" +
+                        "You can control by these commands:\n\n" +
+                        "/sell - to sell something\n" +
+                        "/buy - to buy something\n" +
+                        "/help - to see help")
                 .setChatId(chatId);
     }
 
     public static SendMessage startSell(String chatId) {
         return new SendMessage()
-                .setText("Sell anything you want.")
+                .setText("Choose an action.")
                 .setReplyMarkup(KeyboardFactory.sellerKeyboard())
                 .setChatId(chatId);
     }
@@ -53,21 +59,14 @@ public class MessageFactory {
 
     public static SendMessage advertDone(String chatId) {
         return new SendMessage()
-                .setText("Cool. Advert is now active.")
-                .setReplyMarkup(KeyboardFactory.keyboardRemove())
-                .setChatId(chatId);
-    }
-
-    public static SendMessage seeOwnAdverts(String chatId) {
-        return new SendMessage()
-                .setText("own adverts")
+                .setText("Good. Advert is now active.")
                 .setReplyMarkup(KeyboardFactory.keyboardRemove())
                 .setChatId(chatId);
     }
 
     public static SendMessage startBuy(String chatId) {
         return new SendMessage()
-                .setText("Very well. This is catalog. Hope you will like it.")
+                .setText("Choose an action.")
                 .setReplyMarkup(KeyboardFactory.buyerKeyboard())
                 .setChatId(chatId);
     }
@@ -98,7 +97,7 @@ public class MessageFactory {
         return advertMessages;
     }
 
-    public static List<AdvertMessage> advertMessagesWithEditInSave(String chatId, Set<Advert> adverts) {
+    public static List<AdvertMessage> advertMessagesWithEditInSave(String chatId, List<Advert> adverts) {
         List<AdvertMessage> advertMessages = new ArrayList<>();
         for (Advert advert : adverts) {
             AdvertMessage advertMessage = advertToMessage(chatId, advert);
@@ -168,6 +167,13 @@ public class MessageFactory {
     public static SendMessage discardEdit(String chatId) {
         return new SendMessage()
                 .setText("All changes have been discarded.")
+                .setReplyMarkup(KeyboardFactory.keyboardRemove())
+                .setChatId(chatId);
+    }
+
+    public static SendMessage discardCreation(String chatId) {
+        return new SendMessage()
+                .setText("The advert has been discarded.")
                 .setReplyMarkup(KeyboardFactory.keyboardRemove())
                 .setChatId(chatId);
     }

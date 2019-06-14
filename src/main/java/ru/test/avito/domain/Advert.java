@@ -8,6 +8,7 @@ import org.hibernate.search.annotations.TermVector;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Entity
 @Table(name = "adverts")
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 public class Advert {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "adverts_gen")
-    @SequenceGenerator(name = "adverts_gen", sequenceName = "adverts_seq")
+    @SequenceGenerator(name = "adverts_gen", sequenceName = "adverts_seq", allocationSize = 1)
     private Long id;
     @Column(nullable = false, length = 1023)
     @Field(termVector = TermVector.YES)
@@ -35,6 +36,7 @@ public class Advert {
     }
 
     public Advert(AdvertInProgress advertInProgress) {
+        this.id = advertInProgress.getAdvertId();
         this.text = advertInProgress.getText();
         this.photos = advertInProgress.getPhotos();
         this.host = advertInProgress.getHost();
@@ -88,7 +90,19 @@ public class Advert {
                 "id=" + id +
                 ", text='" + text + '\'' +
                 ", photos=" + photos +
-                ", host=" + host +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Advert advert = (Advert) o;
+        return Objects.equals(id, advert.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

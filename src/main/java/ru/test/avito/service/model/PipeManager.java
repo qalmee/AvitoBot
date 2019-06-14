@@ -80,13 +80,12 @@ public class PipeManager {
                     case KeyboardFactory.SeeAdverts:
                         messageSender.sendAllAdvertsFromHost(userEntity, update.getMessage().getChatId().toString());
                         break;
-                    case KeyboardFactory.sellerRow3:
-                        break;
                 }
                 break;
             case CreateAdvert:
-                if (messageText.equals(KeyboardFactory.done)) {
-                    userEntity.setPipeState(PipeState.None);
+                if (messageText.equals(KeyboardFactory.done) || messageText.equals(KeyboardFactory.cancel)) {
+                    userEntity.setPipeState(PipeState.Seller);
+                    messageSender.sendStartSell(update.getMessage().getChatId().toString());
                 } else {
                     advertCreationManager.createAnAdvert(messageText, userEntity);
                     messageSender.attachPhotosToAdvert(update.getMessage().getChatId().toString());
@@ -94,7 +93,12 @@ public class PipeManager {
                 }
                 break;
             case AddPhotosToAdvert:
-                if (messageText.equals(KeyboardFactory.done)) {
+                if (messageText.equals(KeyboardFactory.cancel)) {
+                    advertCreationManager.abortAdvert(userEntity);
+                    userEntity.setPipeState(PipeState.Seller);
+                    messageSender.sendAdvertDiscarded(update.getMessage().getChatId().toString());
+                    messageSender.sendStartSell(update.getMessage().getChatId().toString());
+                } else if (messageText.equals(KeyboardFactory.done)) {
                     advertCreationManager.advertFinished(userEntity);
                     messageSender.advertDone(update.getMessage().getChatId().toString());
                     messageSender.sendStartSell(update.getMessage().getChatId().toString());
@@ -105,8 +109,8 @@ public class PipeManager {
                 if (messageText.equals(KeyboardFactory.next)) {
                     messageSender.editAdvertPhotos(update.getMessage().getChatId().toString());
                     userEntity.setPipeState(PipeState.EditAdvertPhotosStart);
-                } else if (messageText.equals(KeyboardFactory.exit)) {
-                    advertCreationManager.discardChanges(userEntity);
+                } else if (messageText.equals(KeyboardFactory.cancel)) {
+                    advertCreationManager.abortAdvert(userEntity);
                     messageSender.discardEdit(update.getMessage().getChatId().toString());
                     messageSender.sendStartSell(update.getMessage().getChatId().toString());
                     userEntity.setPipeState(PipeState.Seller);
@@ -121,8 +125,8 @@ public class PipeManager {
                 if (messageText.equals(KeyboardFactory.next)) {
                     advertCreationManager.advertFinished(userEntity);
                     messageSender.editFinished(update.getMessage().getChatId().toString());
-                } else if (messageText.equals(KeyboardFactory.exit)) {
-                    advertCreationManager.discardChanges(userEntity);
+                } else if (messageText.equals(KeyboardFactory.cancel)) {
+                    advertCreationManager.abortAdvert(userEntity);
                     messageSender.discardEdit(update.getMessage().getChatId().toString());
                 }
                 messageSender.sendStartSell(update.getMessage().getChatId().toString());
@@ -140,7 +144,7 @@ public class PipeManager {
                 }
                 break;
             case SearchAdverts:
-                if (messageText.equals(KeyboardFactory.exit)) {
+                if (messageText.equals(KeyboardFactory.cancel)) {
                     messageSender.sendStartBuy(update.getMessage().getChatId().toString());
                     userEntity.setPipeState(PipeState.Buyer);
                 } else {
@@ -161,9 +165,9 @@ public class PipeManager {
         }
         messageSender.manageAdvert(update.getCallbackQuery().getMessage().getChatId().toString(),
                 update.getCallbackQuery().getMessage().getMessageId());
+        Optional<Advert> advert = advertRepository.findById(data.getAdvertId());
         switch (data.getAction()) {
             case KeyboardFactory.edit:
-                Optional<Advert> advert = advertRepository.findById(data.getAdvertId());
                 if (!advert.isPresent()) {
                     return;
                 }
@@ -172,18 +176,25 @@ public class PipeManager {
                 userEntity.setPipeState(PipeState.EditAdvert);
                 break;
             case KeyboardFactory.delete:
-                if (advertRepository.existsById(data.getAdvertId())) {
-                    advertRepository.delete(advertRepository.getOne(data.getAdvertId()));
+                if (advert.isPresent()) {
+                    userEntity.getSavedAdvertIds().remove(advert.get().getId());
+                    userRepository.saveAndFlush(userEntity);
+                    List<UserEntity> users = userRepository.findBySavedAdvertIdsContaining(advert.get().getId());
+                    if (users != null) {
+                        for (UserEntity user : users) {
+                            System.out.println(user.getSavedAdvertIds().remove(advert.get().getId()));
+                        }
+                        userRepository.saveAll(users);
+                    }
+                    advertRepository.delete(advert.get());
                 }
                 messageSender.sendAdvertDeleted(update.getCallbackQuery().getMessage().getChatId().toString());
                 break;
             case KeyboardFactory.save:
-                if (advertRepository.existsById(data.getAdvertId())) {
-                    userEntity.saveOne(advertRepository.getOne(data.getAdvertId()));
-                }
+                advert.ifPresent(value -> userEntity.saveOne(value.getId()));
                 break;
             case KeyboardFactory.removeFromSaved:
-                userEntity.getSaved().removeIf(advert1 -> advert1.getId().equals(data.getAdvertId()));
+                userEntity.getSavedAdvertIds().removeIf(advertId -> advertId.equals(data.getAdvertId()));
                 break;
         }
 

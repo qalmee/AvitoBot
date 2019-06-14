@@ -12,8 +12,8 @@ import java.util.Set;
 @Table(name = "users")
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "users_gen")
-    @SequenceGenerator(name = "users_gen", sequenceName = "users_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_gen")
+    @SequenceGenerator(name = "users_gen", sequenceName = "users_seq", allocationSize = 1)
     private Long id;
     @Column(unique = true, nullable = false)
     private Integer userId;
@@ -31,7 +31,7 @@ public class UserEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "saved_adverts", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<Advert> saved;
+    private Set<Long> savedAdvertIds;
 
     public UserEntity() {
         pipeState = PipeState.None;
@@ -44,34 +44,34 @@ public class UserEntity {
         this.userName = user.getUserName();
         this.isBot = user.getBot();
         this.pipeState = PipeState.None;
-        this.saved = new HashSet<>();
+        this.savedAdvertIds = new HashSet<>();
     }
 
     public UserEntity(Integer userId, String firstName, String lastName,
                       String userName, Boolean isBot, PipeState pipeState,
-                      Set<Advert> saved) {
+                      Set<Long> savedAdvertIds) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
         this.isBot = isBot;
         this.pipeState = pipeState;
-        this.saved = saved;
+        this.savedAdvertIds = savedAdvertIds;
     }
 
-    public Set<Advert> getSaved() {
-        return saved;
+    public Set<Long> getSavedAdvertIds() {
+        return savedAdvertIds;
     }
 
-    public void setSaved(Set<Advert> saved) {
-        this.saved = saved;
+    public void setSavedAdvertIds(Set<Long> savedAdvertIds) {
+        this.savedAdvertIds = savedAdvertIds;
     }
 
-    public void saveOne(Advert advert) {
-        if (saved == null) {
-            saved = new HashSet<>();
+    public void saveOne(Long advertId) {
+        if (savedAdvertIds == null) {
+            savedAdvertIds = new HashSet<>();
         }
-        saved.add(advert);
+        savedAdvertIds.add(advertId);
     }
 
     public Long getId() {
@@ -140,7 +140,6 @@ public class UserEntity {
                 ", userName='" + userName + '\'' +
                 ", isBot=" + isBot +
                 ", pipeState=" + pipeState +
-                ", saved=" + saved +
                 '}';
     }
 }

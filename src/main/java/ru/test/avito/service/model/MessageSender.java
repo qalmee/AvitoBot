@@ -15,6 +15,7 @@ import ru.test.avito.domain.UserEntity;
 import ru.test.avito.repository.AdvertRepository;
 import ru.test.avito.service.MessageFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -49,13 +50,17 @@ public class MessageSender {
     }
 
     void sendAllSavedAdverts(UserEntity host, String chatId) {
-        if (host.getSaved() == null || host.getSaved().isEmpty()) {
+        if (host.getSavedAdvertIds() == null || host.getSavedAdvertIds().isEmpty()) {
             send(MessageFactory.noSavedAdverts(chatId));
             return;
         }
         send(MessageFactory.ownAdvertsWelcome(chatId));
+        List<Advert> adverts = new ArrayList<>();
+        for (Long advertId : host.getSavedAdvertIds()) {
+            adverts.add(advertRepository.findById(advertId).get());
+        }
         List<AdvertMessage> advertMessages =
-                MessageFactory.advertMessagesWithEditInSave(chatId, host.getSaved());
+                MessageFactory.advertMessagesWithEditInSave(chatId, adverts);
         for (AdvertMessage advertMessage : advertMessages) {
             if (advertMessage.getPhotos() != null) {
                 send(advertMessage.getPhotos());
@@ -143,6 +148,10 @@ public class MessageSender {
 
     void sendAdvertDeleted(String chatId) {
         send(MessageFactory.advertDeleted(chatId));
+    }
+
+    void sendAdvertDiscarded(String chatId) {
+        send(MessageFactory.discardCreation(chatId));
     }
 
     void sendAnswerToMessage(Update update) {
