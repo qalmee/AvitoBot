@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.test.avito.DTO.CallbackAdvertData;
-import ru.test.avito.bot.TestBot;
+import ru.test.avito.bot.AvitoBot;
 import ru.test.avito.dao.AdvertDao;
 import ru.test.avito.domain.Advert;
 import ru.test.avito.domain.UserEntity;
@@ -26,18 +26,18 @@ public class PipeManager {
     private final AdvertRepository advertRepository;
     private final MessageSender messageSender;
     private final AdvertDao advertDao;
-    private final TestBot testBot;
+    private final AvitoBot avitoBot;
     private final ObjectMapper objectMapper;
 
     public PipeManager(AdvertCreationManager advertCreationManager, UserRepository userRepository,
                        AdvertRepository advertRepository, MessageSender messageSender,
-                       AdvertDao advertDao, TestBot testBot) {
+                       AdvertDao advertDao, AvitoBot avitoBot) {
         this.advertCreationManager = advertCreationManager;
         this.userRepository = userRepository;
         this.advertRepository = advertRepository;
         this.messageSender = messageSender;
         this.advertDao = advertDao;
-        this.testBot = testBot;
+        this.avitoBot = avitoBot;
         advertDao.initializeHibernateSearch();
         objectMapper = new ObjectMapper();
     }

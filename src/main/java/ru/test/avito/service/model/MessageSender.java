@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.test.avito.DTO.AdvertMessage;
-import ru.test.avito.bot.TestBot;
+import ru.test.avito.bot.AvitoBot;
 import ru.test.avito.domain.Advert;
 import ru.test.avito.domain.UserEntity;
 import ru.test.avito.repository.AdvertRepository;
@@ -23,10 +23,10 @@ import java.util.List;
 public class MessageSender {
 
     private final AdvertRepository advertRepository;
-    private final TestBot testBot;
+    private final AvitoBot avitoBot;
 
-    public MessageSender(TestBot testBot, AdvertRepository advertRepository) {
-        this.testBot = testBot;
+    public MessageSender(AvitoBot avitoBot, AdvertRepository advertRepository) {
+        this.avitoBot = avitoBot;
         this.advertRepository = advertRepository;
     }
 
@@ -169,7 +169,7 @@ public class MessageSender {
 
     private void send(SendMessage message) {
         try {
-            testBot.execute(message);
+            avitoBot.execute(message);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -177,7 +177,7 @@ public class MessageSender {
 
     private void send(SendMediaGroup message) {
         try {
-            testBot.execute(message);
+            avitoBot.execute(message);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -185,7 +185,7 @@ public class MessageSender {
 
     private void send(SendPhoto photo) {
         try {
-            testBot.execute(photo);
+            avitoBot.execute(photo);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -193,7 +193,7 @@ public class MessageSender {
 
     private void send(SendChatAction action) {
         try {
-            testBot.execute(action);
+            avitoBot.execute(action);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -201,7 +201,7 @@ public class MessageSender {
 
     private void send(EditMessageReplyMarkup editMessage) {
         try {
-            testBot.execute(editMessage);
+            avitoBot.execute(editMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
