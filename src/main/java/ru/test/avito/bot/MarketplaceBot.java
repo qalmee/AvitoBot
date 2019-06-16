@@ -8,13 +8,13 @@ import ru.test.avito.credential.TokenHandler;
 import ru.test.avito.service.model.UpdateManager;
 
 @Component
-public class AvitoBot extends TelegramLongPollingBot {
+public class MarketplaceBot extends TelegramLongPollingBot {
 
     private String token;
     private Integer messageId;
     private UpdateManager updateManager;
 
-    public AvitoBot() {
+    public MarketplaceBot() {
         token = TokenHandler.getToken();
     }
 
