@@ -148,7 +148,7 @@ public class PipeManager {
                     messageSender.sendStartBuy(update.getMessage().getChatId().toString());
                     userEntity.setPipeState(PipeState.Buyer);
                 } else {
-                    List<Advert> adverts = advertDao.searchAdverts(messageText);
+                    List<Advert> adverts = advertDao.searchAdverts1(messageText);
                     messageSender.showAdvertsSearch(adverts, update.getMessage().getChatId().toString());
                 }
                 break;

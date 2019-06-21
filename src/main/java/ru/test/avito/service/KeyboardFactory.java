@@ -73,6 +73,21 @@ public class KeyboardFactory {
         return keyboard;
     }
 
+    static ReplyKeyboardMarkup createAdvertWithoutDone() {
+        ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
+
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(cancel);
+
+        ArrayList<KeyboardRow> list = new ArrayList<>();
+        list.add(keyboardRow1);
+        keyboard.setKeyboard(list);
+        keyboard.setOneTimeKeyboard(true);
+        keyboard.setResizeKeyboard(true);
+
+        return keyboard;
+    }
+
     static ReplyKeyboardMarkup buyerKeyboard() {
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
 

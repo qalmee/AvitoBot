@@ -42,7 +42,11 @@ public class MessageSender {
             if (advertMessage.getPhotos() != null) {
                 send(advertMessage.getPhotos());
             }
-            send(advertMessage.getMessage());
+            if (advertMessage.getPhotos() == null
+                    || advertMessage.getPhotos().getMedia() == null
+                    || advertMessage.getPhotos().getMedia().size() > 1) {
+                send(advertMessage.getMessage());
+            }
             if (advertMessage.getInlineEdit() != null) {
                 send(advertMessage.getInlineEdit());
             }

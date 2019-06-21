@@ -1,6 +1,7 @@
 package ru.test.avito.dao;
 
 import org.apache.lucene.search.Query;
+import org.hibernate.search.exception.SearchException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
@@ -56,7 +57,7 @@ public class AdvertDao {
         QueryBuilder queryBuilder = getQueryBuilder();
         Query query = queryBuilder
                 .phrase()
-                .withSlop(1000)
+                .withSlop(100)
                 .onField("text")
                 .sentence(searchQuery)
                 .createQuery();
@@ -65,13 +66,30 @@ public class AdvertDao {
     }
 
     public List<Advert> searchAdverts1(String searchQuery) {
-        QueryBuilder queryBuilder = getQueryBuilder();
-        Query query = queryBuilder
-                .simpleQueryString()
-                .onField("text")
-                .matching("\"" + searchQuery + "\"~1000")
-                .createQuery();
-        return getJpaQuery(query).getResultList();
+        String[] searchQueryArray = searchQuery.split("\\s+");
+        if (searchQueryArray.length == 0) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < searchQueryArray.length; i++) {
+            sb.append("\"");
+            sb.append(searchQueryArray[i]);
+            sb.append("\"");
+            if (i != searchQueryArray.length - 1) sb.append(" | ");
+        }
+        System.out.println(sb.toString());
+        try {
+            QueryBuilder queryBuilder = getQueryBuilder();
+            Query query = queryBuilder
+                    .simpleQueryString()
+                    .onField("text")
+                    .matching(sb.toString())
+                    .createQuery();
+            return getJpaQuery(query).getResultList();
+        } catch (SearchException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private FullTextQuery getJpaQuery(Query query) {

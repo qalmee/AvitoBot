@@ -1,6 +1,5 @@
 package ru.test.avito.bot;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -11,7 +10,6 @@ import ru.test.avito.service.model.UpdateManager;
 public class MarketplaceBot extends TelegramLongPollingBot {
 
     private String token;
-    private Integer messageId;
     private UpdateManager updateManager;
 
     public MarketplaceBot() {
@@ -27,7 +25,6 @@ public class MarketplaceBot extends TelegramLongPollingBot {
         return updateManager;
     }
 
-    @Autowired
     public void setUpdateManager(UpdateManager updateManager) {
         this.updateManager = updateManager;
     }

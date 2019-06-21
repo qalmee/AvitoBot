@@ -46,7 +46,7 @@ public class MessageFactory {
     public static SendMessage createAdvert(String chatId) {
         return new SendMessage()
                 .setText("Send a message with text of an advert. Then photos.")
-                .setReplyMarkup(KeyboardFactory.createAdvert())
+                .setReplyMarkup(KeyboardFactory.createAdvertWithoutDone())
                 .setChatId(chatId);
     }
 
